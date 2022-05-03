@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { View, Text, StyleSheet } from 'react-native';
-import ajax  from '../ajax';
+import ajax  from './ajax';
 import Dealist from './Dealist';
 
 class App extends React.Component {

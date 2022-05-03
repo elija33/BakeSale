@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types'
 
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, FlatList, StyleSheet } from 'react-native';
+import DealItem from './DealItem';
 
  class Dealist extends React.Component {
      static propTypes = {
@@ -9,10 +10,11 @@ import { View, Text, FlatList, StyleSheet } from 'react-native';
      }
   render() {
     return (
-      <View style={Styles.list}>
+      <View style={style.list}>
           <FlatList
             data={this.props.deals}
-            renderItem={({item}) => <Text>{item.title}</Text>}/> 
+            renderItem={({item}) => <DealItem deal = {item} /> }
+            />
         </View>
     );
   }
