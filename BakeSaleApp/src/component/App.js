@@ -20,17 +20,28 @@ class App extends React.Component {
             currentDealId: dealId
         });
     };
+
+    unsetCurrentDeal = () => {
+        this.setState({
+            currentDealId: null,
+        });
+    };
     currentDeal = () => {
         return this.state.deals.find(
             (deal) => deal.key === this.state.currentDealId
         );
-    };
     render() {
         if (this.state.currentDealId) {
-            return <DealDetail deal={this.currentDeal()} />
+            return ( 
+            <DealDetail 
+            initialDeaData={this.currentDeal()} 
+            onBack={this.unsetCurrentDeal} />
+            );
         }
         if (this.state.deals.length > 0) {
-            return <Dealist deals={this.state.deals} onItemPress={this.setCurrentDeal} />
+            return (
+                <Dealist deals={this.state.deals} onItemPress={this.setCurrentDeal} />
+            );
         }
         return (
             <View style={styles.container}>
