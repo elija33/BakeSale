@@ -1,17 +1,28 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, PanResponder, Animated, StyleSheet } from 'react-native';
 
 import { priceDispay } from '../Util';
 import ajax from './ajax';
 
  class DealDetail extends Component {
+     imagePanResponder = PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onPanResponderMove: (evt, gs) => {
+
+        },
+        onPanResponderRelease: (evt, ga) => {
+
+        }
+
+     });
      static propTypes = {
          initialDealData: PropTypes.object.isRequired,
          onBack: PropTypes.func.isRequired,
      };
      state = {
          deal: this.props.initialDealData,
+         imageIndex: 0,
      };
      async componentDidMount() {
          const fullDeal = await ajax.fetchDealsDetail(this.state.deal.key);
@@ -26,7 +37,10 @@ import ajax from './ajax';
           <TouchableOpacity onPress={this.props.onBack}>
               <Text style={styles.backLink}>Back</Text>
           </TouchableOpacity>
-          <Image source={{ uri: deal.media[0] }} style={styles.image} />
+          <Image 
+            {...this.imagePanResponder.panHandlers} 
+            source={{ uri: deal.media[this.state.imageIndex] }} 
+            style={styles.image} />
         <View style={styles.detail}>
             <View>
                 <Text style={styles.title}>{deal.title}</Text>
@@ -59,27 +73,14 @@ const styles = StyleSheet.create({
         backgroundColor: '#ccc',
     },
 
-    deal: {
-        marginHorizontal: 12,
-        marginTop: 50,
-    },
-
     info: {
-        paddingEnd: 10,
-        backgroundColor: '#fff',
-        borderColor: '#bbb',
-        borderWidth: 1,
-        borderTopWidth: 0,
+        alignItems: 'center',
     },
 
     backLink: {
         marginBottom: 5,
         color: '#22f',
-    },
-
-    detail: {
-        borderColor: '#bbb',
-        borderWidth: 1,
+        marginLeft: 10,
     },
 
     title: {
@@ -93,6 +94,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
+        marginTop: '15',
     },
 
     cause:{
@@ -107,7 +109,11 @@ const styles = StyleSheet.create({
     avatar: {
         width: 60,
         height: 60,
-    }
+    },
+
+   vuser: {
+    alignItems: 'center',
+  },
 });
 
 export default DealDetail;

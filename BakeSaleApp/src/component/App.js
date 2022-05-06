@@ -1,20 +1,43 @@
-import React from 'react';
+import React, { Component } from 'react'
 
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Animated, Easing, Dimensions, StyleSheet } from 'react-native';
 import ajax  from './ajax';
-import Dealist from './Dealist';
+import DealList from './DealList';
 import DealDetail from './DealDetail';
+import SearchBar from './SearchBar';
 
 class App extends React.Component {
+    titleXPos = new Animated.Value(0);
     state = {
         deals: [],
+        dealsFormSearch: [],
         currentDealId: null,
     };
-
+    animateTitle = (direction = 1) => {
+        const width = Dimensions.get('window').width - 150;
+        Animated.timing(this.titleXPos, {
+             toValue: direction * (width / 2),
+              duration: 1000,
+                easing: Easing.ease, }
+        ).start(({ finished }) => {
+            if (finished) {
+                this.animateTitle(-1 * direction); 
+            }
+        });
+    };
     async componentDidMount() {
+        this.animateTitle();
         const deals = await ajax.fetchInitialDeals();
         this.setState( { deals });       
     }
+    searchDeals = async (searchTerm) => {
+       let dealsFromSearch = [];
+        if(searchTerm) {
+            dealsFromSearch = await ajax.fetchDealsSearchResults(searchTerm);
+        }
+       this.setState({ dealsFromSearch });
+    };
+    
     setCurrentDeal = (dealId) => {
         this.setState({
             currentDealId: dealId
@@ -28,25 +51,37 @@ class App extends React.Component {
     };
     currentDeal = () => {
         return this.state.deals.find(
-            (deal) => deal.key === this.state.currentDealId
-        );
+            (deal) => deal.key === this.state.currentDealId);
+    };
     render() {
         if (this.state.currentDealId) {
             return ( 
-            <DealDetail 
-            initialDeaData={this.currentDeal()} 
-            onBack={this.unsetCurrentDeal} />
+                <View style={styles.main}>
+                    <DealDetail 
+                        initialDealData={this.currentDeal()} 
+                        onBack={this.unsetCurrentDeal} />
+                </View>
             );
         }
-        if (this.state.deals.length > 0) {
+        const dealsToDisplay =
+            this.state.dealsFormSearch.length > 0
+                ? this.state.dealsFormSearch
+                : this.state.deals;
+
+        if (dealsToDisplay.length > 0) {
             return (
-                <Dealist deals={this.state.deals} onItemPress={this.setCurrentDeal} />
+                <View style={styles.main}>
+                    <SearchBar searchDeals={this.searchDeals} />
+                    <DealList 
+                        deals={dealsToDisplay} 
+                        onItemPress={this.setCurrentDeal} />
+                </View>
             );
         }
         return (
-            <View style={styles.container}>
+            <Animated.View style={[{ left: this.titleXPos }, styles.container]}>
                 <Text style={styles.header}>BakeSaleApp</Text>
-            </View>
+            </Animated.View>
         );
     }
 }
@@ -57,6 +92,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+
+    main: {
+        marginTop: 30,
+    },
+
     header: {
         fontSize: 40,
     },
