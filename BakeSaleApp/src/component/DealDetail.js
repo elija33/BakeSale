@@ -1,19 +1,35 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
-import { View, Text, Image, TouchableOpacity, PanResponder, Animated, StyleSheet } from 'react-native';
+import { 
+    View, 
+    Text, 
+    Image, 
+    TouchableOpacity, 
+    PanResponder, 
+    Animated, 
+    StyleSheet, 
+    Dimensions } from 'react-native';
 
 import { priceDispay } from '../Util';
 import ajax from './ajax';
 
- class DealDetail extends Component {
+ class DealDetail extends React.Component {
+     imageXPos = new Animated.Value(0);
      imagePanResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
         onPanResponderMove: (evt, gs) => {
-
+            this.imageXPos.setValue(gs, dx);
         },
         onPanResponderRelease: (evt, ga) => {
-
-        }
+            const width = Dimensions.get('window').width;
+            if (Math.abs(gs.dx) >  width * 0.4) {
+                const direction = Math.sign(gs,dx);
+                Animated.timing(this.imageXPos, {
+                    toValue: direction * width,
+                    duration: 250,
+                }).start();
+            }
+        },
 
      });
      static propTypes = {
@@ -37,10 +53,10 @@ import ajax from './ajax';
           <TouchableOpacity onPress={this.props.onBack}>
               <Text style={styles.backLink}>Back</Text>
           </TouchableOpacity>
-          <Image 
+          <Animated.Image 
             {...this.imagePanResponder.panHandlers} 
-            source={{ uri: deal.media[this.state.imageIndex] }} 
-            style={styles.image} />
+            source={{ uri: deal.media[this.state.imageIndex] }}
+            style={[{ left: this.imageXPos }, styles.image]} />
         <View style={styles.detail}>
             <View>
                 <Text style={styles.title}>{deal.title}</Text>
